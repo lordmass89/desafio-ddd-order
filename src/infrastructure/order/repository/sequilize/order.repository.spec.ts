@@ -23,16 +23,18 @@ describe("Order repository test", () => {
       sync: { force: true },
     });
 
-    await sequelize.addModels([
+    sequelize.addModels([
       CustomerModel,
       OrderModel,
       OrderItemModel,
       ProductModel,
     ]);
+
     await sequelize.sync();
   });
 
   afterEach(async () => {
+    await sequelize.truncate({ cascade: true })
     await sequelize.close();
   });
 
@@ -80,5 +82,96 @@ describe("Order repository test", () => {
         },
       ],
     });
+  });
+
+  it("should find a order", async () => {
+
+    // Create customer
+    const customerRepository = new CustomerRepository();
+    const customer = new Customer("123", "Customer 1");
+    const address = new Address("Street 1", 1, "Zipcode 1", "City 1");
+    customer.changeAddress(address);
+    await customerRepository.create(customer);
+
+    // Create product
+    const productRepository = new ProductRepository();
+    const product = new Product("123", "Product 1", 10);
+    await productRepository.create(product);
+
+    // Create order item
+    const orderItem = new OrderItem(
+      "1",
+      product.name,
+      product.price,
+      product.id,
+      2
+    );
+
+    // Create order
+    const order = new Order("123", "123", [orderItem]);
+    const orderRepository = new OrderRepository();
+    await orderRepository.create(order);
+
+    // Validate find
+    const orderResult = await orderRepository.find(order.id)
+
+    expect(order).toStrictEqual(orderResult);
+
+  });
+
+  it("should find all order", async () => {
+
+    // Create customer
+    const customerRepository = new CustomerRepository();
+
+    const customer = new Customer("1", "Customer 1");
+    const address = new Address("Street 1", 1, "Zipcode 1", "City 1");
+    customer.changeAddress(address);
+
+    await customerRepository.create(customer);
+
+    // Create product
+    const productRepository = new ProductRepository();
+
+    const product = new Product("1", "Product 1", 10);
+    const product2 = new Product("2", "Product 2", 10);
+
+    await productRepository.create(product);
+    await productRepository.create(product2);
+
+    // Create order item
+    const orderItem = new OrderItem(
+      "1",
+      product.name,
+      product.price,
+      product.id,
+      2
+    );
+
+    const orderItem2 = new OrderItem(
+      "2",
+      product.name,
+      product.price,
+      product.id,
+      5
+    );
+
+    // Create order
+    const orderRepository = new OrderRepository();
+
+    const order = new Order("1", customer.id, [orderItem]);
+    const order2 = new Order("2", customer.id, [orderItem2]);
+
+    await orderRepository.create(order);
+    await orderRepository.create(order2);
+
+    // Find All
+    const orderResult = await orderRepository.findAll();
+
+    // Validate
+    expect(orderResult).toHaveLength(2);
+    expect(orderResult).toContainEqual(order);
+    expect(orderResult).toContainEqual(order2);
+
   });
 });

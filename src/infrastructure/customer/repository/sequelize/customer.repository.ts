@@ -64,6 +64,7 @@ export default class CustomerRepository implements CustomerRepositoryInterface {
     const customerModels = await CustomerModel.findAll();
 
     const customers = customerModels.map((customerModels) => {
+
       let customer = new Customer(customerModels.id, customerModels.name);
       customer.addRewardPoints(customerModels.rewardPoints);
       const address = new Address(
@@ -76,6 +77,7 @@ export default class CustomerRepository implements CustomerRepositoryInterface {
       if (customerModels.active) {
         customer.activate();
       }
+
       return customer;
     });
 
