@@ -5,4 +5,10 @@ Após realizar tal implementação submeta seu projeto, nesse ponto todos os tes
 
 Boa sorte.
 
- A linguagem de programação para este desafio é TypeScript
+ A linguagem de programação para este desafio é TypeScript+
+
+ ## Run 
+
+```
+npm test
+```
